@@ -1,6 +1,6 @@
  # Read temperature from DS18B20(s) and publish to MQTT broker. 
 
-Strting from the template <https://github.com/HankB/ESP32-ESP-IDF-CLI-start>
+Starting from the template <https://github.com/HankB/ESP32-ESP-IDF-CLI-start>
 
 ## Useful links
 
@@ -20,6 +20,17 @@ Produce code for an ESP32 that reads one or more DS18B20 temperature sensors and
 ## Status
 
 * Resetting the project.
+* Template code works.
+
+## Build
+
+```text
+cd project
+. ~/esp/esp-idf/export.sh # Assuming Espressif tools installed at ~/esp
+idf.py set-target # optional if other than esp32
+# Connect ESP
+idf.py build flash monitor
+```
 
 ## Plans
 
@@ -28,4 +39,15 @@ Produce code for an ESP32 that reads one or more DS18B20 temperature sensors and
 
 ## Errata
 
-Note: SSID and password does not come from example config but rather the `secrets.h` file which the user must provide.
+Note: SSID and password does not come from example config but rather the `secrets.h` file which the user must provide. A template looks like:
+
+```text
+#define SSID "ssid"
+#define  PWD "password"
+
+#define sntp_server "serve_name|server_IP"
+#define broker_list "mqtt://hostname:1883" 
+
+```
+
+All project files moved to `.../project` so the viewer need not scroll down so much to find the README.
