@@ -37,6 +37,18 @@ idf.py build flash monitor
 * Build the template and confirm that it works.
 * Connect a DS18B20 sensor and add the DS18B20 driver.
 
+### DS18B20 connections for `esp32`
+
+* sensor to ESP
+* Vcc to 3V3
+* GND to GND
+* DATA to D4
+* 2.6KΩ resistor from Vcc to DATA. (4.7KΩ recommended)
+
+```text
+idf.py add-dependency "espressif/ds18b20^0.2.0" 
+```
+
 ## Errata
 
 Note: SSID and password does not come from example config but rather the `secrets.h` file which the user must provide. A template looks like:
