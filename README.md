@@ -6,6 +6,7 @@ Starting from the template <https://github.com/HankB/ESP32-ESP-IDF-CLI-start>
 
 * <https://www.analog.com/media/en/technical-documentation/data-sheets/ds18b20.pdf> Data sheet
 * <https://components.espressif.com/components/espressif/ds18b20/versions/0.2.0/readme>
+* <https://docs.espressif.com/projects/idf-component-manager/en/latest/>
 
 Leaving the links to Espressif guides as a convenience.
 
@@ -21,6 +22,7 @@ Produce code for an ESP32 that reads one or more DS18B20 temperature sensors and
 
 * Resetting the project.
 * Template code works.
+* Read single DS18B20 works.
 
 ## Build
 

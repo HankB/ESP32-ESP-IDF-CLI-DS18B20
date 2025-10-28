@@ -18,6 +18,7 @@
 #include "proj_wifi.h"
 #include "proj_sntp.h"
 #include "proj_mqtt.h"
+#include "proj_ds18b20.h"
 
 static const char *TAG = "example";
 
@@ -53,6 +54,7 @@ void app_main(void)
     time_t t = init_sntp();
     ESP_LOGI(TAG,"init_sntp(): %lld", t);
     init_mqtt();
+    init_ds18b20();
     esp_log_level_set("*", ESP_LOG_WARN); 
     // ref: https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/log.html#dynamic-log-level-control
      
@@ -65,10 +67,11 @@ void app_main(void)
         ESP_LOGI(TAG, "Turning the LED %s at %lld!", s_led_state == true ? "ON" : "OFF", time(0));
         heap_caps_get_info(&heap_info, MALLOC_CAP_8BIT);
         esp_wifi_sta_get_ap_info(&ap_info);
+        float temperature=read_ds18b20();
         time_t timestamp = time(0);
-        int len=snprintf(payload_buf, payload_len, "ts %llu: heap total:%u, used:%u, rssi:%d",
+        int len=snprintf(payload_buf, payload_len, "ts %llu: heap total:%u, used:%u, rssi:%d, temp:%f",
             timestamp, heap_info.total_free_bytes, heap_info.total_allocated_bytes,
-            ap_info.rssi);
+            ap_info.rssi, temperature);
 
         proj_mqtt_publish("/topic/repeating/C3", payload_buf, len, 0, 0);
         blink_led();
