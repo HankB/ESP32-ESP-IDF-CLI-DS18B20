@@ -25,14 +25,14 @@ static const char *TAG = "example";
 /* Use project configuration menu (idf.py menuconfig) to choose the GPIO to blink,
    or you can edit the following line and set a number here.
 */
-#define BLINK_GPIO 2
+#define BLINK_GPIO 8
 
 static void blink_led(void)
 {
     // blink on board LED for a very short period.
-    gpio_set_level(BLINK_GPIO, 1);
-    vTaskDelay(5 / portTICK_PERIOD_MS);
     gpio_set_level(BLINK_GPIO, 0);
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+    gpio_set_level(BLINK_GPIO, 1);
 }
 
 static void configure_led(void)
@@ -62,7 +62,7 @@ void app_main(void)
     wifi_ap_record_t    ap_info;
     char payload_buf[payload_len];
     time_t start_time = time(0);
-    static const time_t publish_interval=60;// publish temperature every 60s
+    static const time_t publish_interval=10;// publish temperature every 10s
     time_t publish_time = start_time - publish_interval;
 
     while (1) {
