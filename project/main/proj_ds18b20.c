@@ -13,7 +13,7 @@
 static const char *TAG = "ds18b20";
 
 #define EXAMPLE_ONEWIRE_BUS_GPIO 4
-#define EXAMPLE_ONEWIRE_MAX_DS18B20 2
+#define EXAMPLE_ONEWIRE_MAX_DS18B20 8
 
 int ds18b20_device_num = 0;
 ds18b20_device_handle_t ds18b20s[EXAMPLE_ONEWIRE_MAX_DS18B20];
