@@ -58,22 +58,29 @@ void app_main(void)
     esp_log_level_set("*", ESP_LOG_WARN); 
     // ref: https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/log.html#dynamic-log-level-control
      
-#define payload_len 64
+#define payload_len 128
     multi_heap_info_t   heap_info;
     wifi_ap_record_t    ap_info;
     char payload_buf[payload_len];
+    time_t start_time = time(0);
+    static const time_t publish_interval=60;// publish temperature every 60s
+    time_t publish_time = start_time - publish_interval;
 
     while (1) {
         ESP_LOGI(TAG, "Turning the LED %s at %lld!", s_led_state == true ? "ON" : "OFF", time(0));
-        heap_caps_get_info(&heap_info, MALLOC_CAP_8BIT);
-        esp_wifi_sta_get_ap_info(&ap_info);
-        float temperature=read_ds18b20();
         time_t timestamp = time(0);
-        int len=snprintf(payload_buf, payload_len, "ts %llu: heap total:%u, used:%u, rssi:%d, temp:%f",
-            timestamp, heap_info.total_free_bytes, heap_info.total_allocated_bytes,
-            ap_info.rssi, temperature);
-
-        proj_mqtt_publish("/topic/repeating/C3", payload_buf, len, 0, 0);
+        if( timestamp-publish_time >= publish_interval)
+        {
+            publish_time = timestamp;
+            heap_caps_get_info(&heap_info, MALLOC_CAP_8BIT);
+            esp_wifi_sta_get_ap_info(&ap_info);
+            float temperature=read_ds18b20()*9/5+32.0;
+            int len=snprintf(payload_buf, payload_len, "ts:%llu, uptime:%llu, heap total:%u, used:%u, rssi:%d, temp:%5.2f°F",
+                timestamp, timestamp-start_time, 
+                heap_info.total_free_bytes, heap_info.total_allocated_bytes,
+                ap_info.rssi, (float)temperature);
+            proj_mqtt_publish("/topic/repeating/C3", payload_buf, len, 0, 0);
+        }
         blink_led();
         /* Toggle the LED state */
         s_led_state = !s_led_state;
