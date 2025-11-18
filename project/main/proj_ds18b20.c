@@ -18,7 +18,8 @@ static const char *TAG = "ds18b20";
 int ds18b20_device_num = 0;
 ds18b20_device_handle_t ds18b20s[EXAMPLE_ONEWIRE_MAX_DS18B20];
 
-void init_ds18b20(void)
+// return the nuymber of DS18B20 devices found.
+int init_ds18b20(void)
 {
     // install new 1-wire bus
     onewire_bus_handle_t bus;
@@ -71,19 +72,24 @@ void init_ds18b20(void)
         // set resolution
         ESP_ERROR_CHECK(ds18b20_set_resolution(ds18b20s[i], DS18B20_RESOLUTION_12B));
     }
+    return ds18b20_device_num;
 }
 
-float read_ds18b20(void)
+float read_ds18b20(unsigned int idx)
 {
-    // get temperature from sensors one by one
+    // get temperature from requested sensor
     float temperature;
     // vTaskDelay(pdMS_TO_TICKS(200));
 
-    for (int i = 0; i < ds18b20_device_num; i++)
-    {
-        ESP_ERROR_CHECK(ds18b20_trigger_temperature_conversion(ds18b20s[i]));
-        ESP_ERROR_CHECK(ds18b20_get_temperature(ds18b20s[i], &temperature));
-        ESP_LOGI(TAG, "temperature read from DS18B20[%d]: %.2fC", i, temperature);
+    if(idx < ds18b20_device_num) {
+        ESP_ERROR_CHECK(ds18b20_trigger_temperature_conversion(ds18b20s[idx]));
+        ESP_ERROR_CHECK(ds18b20_get_temperature(ds18b20s[idx], &temperature));
+        ESP_LOGI(TAG, "temperature read from DS18B20[%d]: %.2fC", idx, temperature);
     }
+    else {
+        ESP_LOGE(TAG, "bad DS18B20 index: %d: %d found", idx, ds18b20_device_num);
+        return -99.9; // impossible value - range  -55°C to +125°C
+    }
+
     return temperature;
 }

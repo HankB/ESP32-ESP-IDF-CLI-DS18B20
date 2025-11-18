@@ -46,15 +46,15 @@ static void configure_led(void)
 
 void app_main(void)
 {
-
+    unsigned int  ds18b20_count;
     /* Configure the peripheral according to the LED type */
     configure_led();
     wifi_init_sta();
     time_t t = init_sntp();
     ESP_LOGI(TAG,"init_sntp(): %lld", t);
     init_mqtt();
-    init_ds18b20();
-    esp_log_level_set("*", ESP_LOG_WARN); 
+    ds18b20_count = init_ds18b20();
+    esp_log_level_set("*", ESP_LOG_WARN);
     // ref: https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/log.html#dynamic-log-level-control
      
 #define payload_len 128
@@ -72,12 +72,14 @@ void app_main(void)
             publish_time = timestamp;
             heap_caps_get_info(&heap_info, MALLOC_CAP_8BIT);
             esp_wifi_sta_get_ap_info(&ap_info);
-            float temperature=read_ds18b20()*9/5+32.0;
-            int len=snprintf(payload_buf, payload_len, "ts:%llu, uptime:%llu, heap total:%u, used:%u, rssi:%d, temp:%5.2f°F",
-                timestamp, timestamp-start_time, 
-                heap_info.total_free_bytes, heap_info.total_allocated_bytes,
-                ap_info.rssi, (float)temperature);
-            proj_mqtt_publish("/topic/repeating/C3", payload_buf, len, 0, 0);
+            for(unsigned int sensors=0; sensors<ds18b20_count; sensors++){
+                float temperature=read_ds18b20(sensors)*9/5+32.0;
+                int len=snprintf(payload_buf, payload_len, "ts:%llu, uptime:%llu, heap total:%u, used:%u, rssi:%d, temp:%5.2f°F, device_id:%d, ",
+                    timestamp, timestamp-start_time, 
+                    heap_info.total_free_bytes, heap_info.total_allocated_bytes,
+                    ap_info.rssi, (float)temperature, sensors);
+                proj_mqtt_publish("/topic/repeating/C3", payload_buf, len, 0, 0);
+            }
         }
         blink_led();
         vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS); // delay 1s
