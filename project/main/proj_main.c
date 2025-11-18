@@ -25,15 +25,14 @@ static const char *TAG = "example";
 /* Use project configuration menu (idf.py menuconfig) to choose the GPIO to blink,
    or you can edit the following line and set a number here.
 */
-#define BLINK_GPIO CONFIG_BLINK_GPIO
-
-static uint8_t s_led_state = 0;
-
+#define BLINK_GPIO 2
 
 static void blink_led(void)
 {
-    /* Set the GPIO level according to the state (LOW or HIGH)*/
-    gpio_set_level(BLINK_GPIO, s_led_state);
+    // blink on board LED for a very short period.
+    gpio_set_level(BLINK_GPIO, 1);
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+    gpio_set_level(BLINK_GPIO, 0);
 }
 
 static void configure_led(void)
@@ -67,9 +66,8 @@ void app_main(void)
     time_t publish_time = start_time - publish_interval;
 
     while (1) {
-        ESP_LOGI(TAG, "Turning the LED %s at %lld!", s_led_state == true ? "ON" : "OFF", time(0));
         time_t timestamp = time(0);
-        if( timestamp-publish_time >= publish_interval)
+        if( timestamp-publish_time >= publish_interval) // time to publish?
         {
             publish_time = timestamp;
             heap_caps_get_info(&heap_info, MALLOC_CAP_8BIT);
@@ -82,8 +80,6 @@ void app_main(void)
             proj_mqtt_publish("/topic/repeating/C3", payload_buf, len, 0, 0);
         }
         blink_led();
-        /* Toggle the LED state */
-        s_led_state = !s_led_state;
-        vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
+        vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS); // delay 1s
     }
 }
